@@ -72,8 +72,13 @@ export default function LegalContextModal({
   if (!isOpen || !clause) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-container legal-context-modal">
+    <div className="modal-backdrop" role="presentation">
+      <div 
+        className="modal-container legal-context-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="legal-context-modal-title"
+      >
         {/* Header */}
         <div className="modal-header">
           <div className="modal-title-wrap">
@@ -81,9 +86,9 @@ export default function LegalContextModal({
               <Scale size={16} />
               <span>{t('context.title').toUpperCase()}</span>
             </div>
-            <h2>{t('clauses.card_clause')} {clause.clause_number} — {t('context.title')}</h2>
+            <h2 id="legal-context-modal-title">{t('clauses.card_clause')} {clause.clause_number} — {t('context.title')}</h2>
           </div>
-          <button className="close-btn" onClick={onClose}>
+          <button className="close-btn" onClick={onClose} aria-label="Close legal context dialog">
             <X size={20} />
           </button>
         </div>

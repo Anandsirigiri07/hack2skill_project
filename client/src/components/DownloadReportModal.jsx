@@ -70,27 +70,33 @@ export default function DownloadReportModal({ isOpen, onClose, analysis, documen
   const needsAttention = analysis.clauses?.filter((c) => c.risk_level === 'needs_attention') || [];
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-dialog report-modal printable-area" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose} role="presentation">
+      <div 
+        className="modal-dialog report-modal printable-area" 
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="report-modal-title"
+      >
         {/* Modal Header */}
         <div className="modal-header no-print">
           <div className="modal-title-row">
             <FileText size={20} />
             <div>
-              <h2 className="modal-title">{t('report.modal_title')}</h2>
+              <h2 id="report-modal-title" className="modal-title">{t('report.modal_title')}</h2>
               <p className="modal-subtitle">{t('report.modal_subtitle')}</p>
             </div>
           </div>
           <div className="header-actions">
-            <button className="btn-secondary" onClick={handlePrint}>
+            <button className="btn-secondary" onClick={handlePrint} aria-label="Print or save report as PDF">
               <Printer size={15} />
               <span>{t('report.print_pdf')}</span>
             </button>
-            <button className="btn-primary" onClick={handleDownloadTxt}>
+            <button className="btn-primary" onClick={handleDownloadTxt} aria-label="Download plain text audit summary">
               <Download size={15} />
               <span>{t('report.download_summary')}</span>
             </button>
-            <button className="modal-close-btn" onClick={onClose}>
+            <button className="modal-close-btn" onClick={onClose} aria-label="Close report preview modal">
               <X size={18} />
             </button>
           </div>

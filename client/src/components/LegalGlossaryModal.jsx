@@ -19,8 +19,14 @@ export default function LegalGlossaryModal({ isOpen, onClose, initialSearch = ''
   });
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-dialog glossary-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-overlay" onClick={onClose} role="presentation">
+      <div 
+        className="modal-dialog glossary-modal" 
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="glossary-modal-title"
+      >
         {/* Modal Header */}
         <div className="modal-header">
           <div className="modal-title-row">
@@ -28,13 +34,13 @@ export default function LegalGlossaryModal({ isOpen, onClose, initialSearch = ''
               <BookOpen size={18} />
             </div>
             <div>
-              <h2 className="modal-title">{t('glossary.title')}</h2>
+              <h2 id="glossary-modal-title" className="modal-title">{t('glossary.title')}</h2>
               <p className="modal-subtitle">
                 {t('glossary.subtitle')}
               </p>
             </div>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>
+          <button className="modal-close-btn" onClick={onClose} aria-label="Close glossary dialog">
             <X size={18} />
           </button>
         </div>

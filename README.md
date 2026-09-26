@@ -143,21 +143,29 @@ npm run dev
 
 ## 🧪 Automated Verification & Test Suite
 
-Run the hardened end-to-end verification suite:
+LegalLens AI features a unified 87-assertion test suite spanning both backend deterministic logic and frontend accessibility/fail-closed states:
+
 ```bash
-cd server
-node test/run_hardened_tests.js
+# Run entire test suite (Server + Client)
+npm test
+
+# Run individual suites
+npm run test:server   # 49 Hardened Backend & Security Assertions
+npm run test:client   # 38 Frontend Precision & Accessibility Assertions
 ```
 
-### Verified Test Cases:
-- ✅ **TEST 1:** Health endpoint & isolated demo mode validation
-- ✅ **TEST 2:** Deterministic financial arithmetic accuracy
-- ✅ **TEST 3:** Document analysis & 4-Pillars (WHAT / WHY / WHERE / WHAT NEXT) output
-- ✅ **TEST 4:** Zero-hallucination refusal for queries outside contract text
-- ✅ **TEST 5:** Untrusted prompt injection neutralization
-- ✅ **TEST 6:** Contract stress-test procedural step simulation
-- ✅ **TEST 7:** Negotiation copilot redline & formal draft generation
-- ✅ **TEST 8:** Tri-pane legal context boundary verification
+### Verified Test Matrix:
+- ✅ **TEST 1: Health & Isolated Mode** — Healthcheck status, model pinning (`gemini-3.6-flash`), and demo sandboxing.
+- ✅ **TEST 2: Deterministic Financial Math** — Verified currency formatting, multi-year conversion, refundable deposits, and fee aggregation.
+- ✅ **TEST 3: 4-Pillars of Grounding** — Analysis payload validation (**WHAT**, **WHY**, **WHERE**, **WHAT NEXT**).
+- ✅ **TEST 4: Zero-Hallucination Refusal** — Strict refusal verification (`found_in_document: false`) when contractual facts are missing.
+- ✅ **TEST 5: Untrusted Prompt Injection Defense** — Neutralization of system prompt extraction or override attacks.
+- ✅ **TEST 6: Contract Stress Test / Scenario Simulation** — Step-by-step procedural event execution and uncertainty rating.
+- ✅ **TEST 7: Negotiation Copilot** — Generation of balanced redline clauses, fallback compromise positions, and formal drafts.
+- ✅ **TEST 8: Tri-Pane Legal Verifier** — Strict separation between **Document Fact**, **External Statute**, and **AI Interpretation**.
+- ✅ **TEST 9: Boundary Input Validation** — Defensive handling of empty, sub-minimum, and malformed inputs.
+- ✅ **TEST 10: Multilingual Dictionary Coverage** — 100% dictionary completeness across English, Hindi, and Kannada.
+- ✅ **TEST 11: Semantic Comparison Matrix** — Asymmetric clause diffing and balanced model benchmarking.
 
 ---
 

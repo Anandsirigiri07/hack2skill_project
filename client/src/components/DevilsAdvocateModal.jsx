@@ -70,8 +70,13 @@ export default function DevilsAdvocateModal({
   if (!isOpen || !clause) return null;
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-container devils-advocate-modal">
+    <div className="modal-backdrop" role="presentation">
+      <div 
+        className="modal-container devils-advocate-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="devils-advocate-modal-title"
+      >
         {/* Header */}
         <div className="modal-header">
           <div className="modal-title-wrap">
@@ -79,9 +84,9 @@ export default function DevilsAdvocateModal({
               <HelpCircle size={16} />
               <span>{t('devils.title').toUpperCase()}</span>
             </div>
-            <h2>{t('clauses.card_clause')} {clause.clause_number} — {t('devils.title')}</h2>
+            <h2 id="devils-advocate-modal-title">{t('clauses.card_clause')} {clause.clause_number} — {t('devils.title')}</h2>
           </div>
-          <button className="close-btn" onClick={onClose}>
+          <button className="close-btn" onClick={onClose} aria-label="Close Devil's advocate dialog">
             <X size={20} />
           </button>
         </div>

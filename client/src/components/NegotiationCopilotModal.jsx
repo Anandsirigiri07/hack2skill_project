@@ -79,8 +79,13 @@ export default function NegotiationCopilotModal({
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-container negotiation-modal">
+    <div className="modal-backdrop" role="presentation">
+      <div 
+        className="modal-container negotiation-modal" 
+        role="dialog" 
+        aria-modal="true" 
+        aria-labelledby="negotiation-modal-title"
+      >
         {/* Modal Header */}
         <div className="modal-header">
           <div className="modal-title-wrap">
@@ -88,9 +93,9 @@ export default function NegotiationCopilotModal({
               <MessageSquare size={16} />
               <span>{t('negotiate.title').toUpperCase()}</span>
             </div>
-            <h2>{t('clauses.card_clause')} {clause.clause_number} — {t('negotiate.title')}</h2>
+            <h2 id="negotiation-modal-title">{t('clauses.card_clause')} {clause.clause_number} — {t('negotiate.title')}</h2>
           </div>
-          <button className="close-btn" onClick={onClose}>
+          <button className="close-btn" onClick={onClose} aria-label="Close negotiation copilot dialog">
             <X size={20} />
           </button>
         </div>
@@ -189,6 +194,7 @@ export default function NegotiationCopilotModal({
                   <button
                     className="copy-action-btn"
                     onClick={() => copyToClipboard(result.counter_proposal, 'redline')}
+                    aria-label="Copy redline counter-proposal to clipboard"
                   >
                     {copiedRedline ? <Check size={14} /> : <Copy size={14} />}
                     <span>{copiedRedline ? t('modal.copied') : t('modal.copy')}</span>
@@ -233,6 +239,7 @@ export default function NegotiationCopilotModal({
                           'email'
                         )
                       }
+                      aria-label="Copy draft message to clipboard"
                     >
                       {copiedEmail ? <Check size={14} /> : <Copy size={14} />}
                       <span>{copiedEmail ? t('modal.copied') : t('modal.copy')}</span>

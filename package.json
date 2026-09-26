@@ -1,0 +1,29 @@
+{
+  "name": "legallens-ai-workspace",
+  "version": "1.0.0",
+  "description": "LegalLens AI — Enterprise-grade Legal Document Analysis, Risk Detection, and Contract Copilot powered by Google Gemini",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "test": "npm run test:server && npm run test:client",
+    "test:server": "npm run test --prefix server",
+    "test:client": "npm run test --prefix client",
+    "build": "npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client"
+  },
+  "keywords": [
+    "legal-tech",
+    "gemini-3.6-flash",
+    "contract-analysis",
+    "multilingual",
+    "risk-assessment",
+    "hack2skill"
+  ],
+  "author": "LegalLens AI Team",
+  "license": "MIT"
+}
