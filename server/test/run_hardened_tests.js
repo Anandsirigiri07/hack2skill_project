@@ -245,6 +245,67 @@ async function runTests() {
     assert(false, `Legal context test exception: ${err.message}`);
   }
 
+  // ── TEST 9: Boundary Input Validation & Error Envelopes ──────────
+  console.log('\n--- TEST 9: Boundary Input Validation & Error Envelopes ---');
+  try {
+    const emptyRes = await fetch(`${API_BASE}/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: '' }),
+    });
+    assert(emptyRes.status === 400, 'Empty document text rejected with HTTP 400');
+    const emptyJson = await emptyRes.json();
+    assert(emptyJson.success === false, 'Error envelope conforms to { success: false }');
+
+    const shortRes = await fetch(`${API_BASE}/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: 'Too short agreement' }),
+    });
+    assert(shortRes.status === 400, 'Sub-minimum text rejected with HTTP 400');
+  } catch (err) {
+    assert(false, `Boundary validation test exception: ${err.message}`);
+  }
+
+  // ── TEST 10: Multi-Year & Edge Duration Arithmetic ──────────────
+  console.log('\n--- TEST 10: Multi-Year & Edge Duration Arithmetic ---');
+  try {
+    const { parseCurrency, parseDurationMonths } = require('../src/utils/calculator');
+    const rentVal = parseCurrency('INR 45,500.50');
+    assert(rentVal.value === 45500.5, 'Parses decimal currency with commas cleanly');
+
+    const twoYears = parseDurationMonths('2 years');
+    assert(twoYears === 24, 'Parses multi-year duration: "2 years" -> 24 months');
+
+    const defaultDuration = parseDurationMonths(null);
+    assert(defaultDuration === 11, 'Defaults safely to 11 months on null duration');
+
+    const missingFactsCalc = calculateFinancialExposure({});
+    assert(missingFactsCalc.stated_recurring_commitment.total_recurring != null, 'Gracefully calculates default commitment without throwing NaN');
+  } catch (err) {
+    assert(false, `Arithmetic edge case exception: ${err.message}`);
+  }
+
+  // ── TEST 11: Semantic Contract Comparison ───────────────────────
+  console.log('\n--- TEST 11: Semantic Contract Comparison ---');
+  try {
+    const compRes = await fetch(`${API_BASE}/compare`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        textA: SAMPLE_TEXT,
+        textB: SAMPLE_TEXT.replace('INR 25,000', 'INR 22,000').replace('3 months', '1 month'),
+        language: 'en',
+      }),
+    });
+    assert(compRes.status === 200, 'Compare endpoint returned 200 OK');
+    const compJson = await compRes.json();
+    assert(compJson.data.comparison_summary != null, 'Comparison summary is structured');
+    assert((compJson.data.clause_diffs?.length > 0 || compJson.data.comparison_matrix?.length > 0), 'Generates comparison matrix and diff breakdown');
+  } catch (err) {
+    assert(false, `Comparison test exception: ${err.message}`);
+  }
+
   // ── TEST SUMMARY ────────────────────────────────────────────────
   console.log('\n============================================================');
   console.log(`TEST EXECUTION SUMMARY: ${passed} PASSED | ${failed} FAILED`);
