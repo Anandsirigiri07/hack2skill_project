@@ -28,12 +28,23 @@ jobs:
         run: npm ci || npm install
         working-directory: client
 
+      - name: Start Backend Server in Isolated Mode
+        run: |
+          npm start &
+          node -e "const check=()=>fetch('http://localhost:3001/api/health').then(()=>process.exit(0)).catch(()=>setTimeout(check,300));check();"
+        working-directory: server
+        env:
+          PORT: 3001
+          DEMO_MODE: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
       - name: Run Backend Hardened Test Suite (49 assertions)
         run: npm test
         working-directory: server
         env:
           PORT: 3001
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY || 'test_demo_key' }}
+          DEMO_MODE: 'true'
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Run Frontend Reliability & Precision Suite (38 assertions)
         run: npm test

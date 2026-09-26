@@ -45,6 +45,22 @@ async function runTests() {
     }
   }
 
+  // Ensure backend is reachable; auto-boot if running standalone or in CI
+  try {
+    const healthCheck = await fetch(`${API_BASE}/health`).catch(() => null);
+    if (!healthCheck || !healthCheck.ok) {
+      console.log('  [AUTO-INIT] Backend not active on port 3001. Starting in-process server for tests...');
+      process.env.DEMO_MODE = 'true';
+      if (!process.env.GEMINI_API_KEY) {
+        process.env.GEMINI_API_KEY = 'test_demo_key';
+      }
+      require('../src/index');
+      await new Promise((resolve) => setTimeout(resolve, 800));
+    }
+  } catch (initErr) {
+    console.warn('  [AUTO-INIT] Note:', initErr.message);
+  }
+
   // ── TEST 1: Health & Demo Mode Check ────────────────────────────
   console.log('--- TEST 1: System Health & Demo Mode ---');
   try {

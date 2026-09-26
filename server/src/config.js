@@ -23,6 +23,10 @@ const config = {
 // Validate required config on startup
 function validateConfig() {
   if (!config.GEMINI_API_KEY) {
+    if (config.DEMO_MODE) {
+      config.GEMINI_API_KEY = 'demo_mode_key_active';
+      return;
+    }
     console.error('FATAL: GEMINI_API_KEY is not set. Copy .env.example to .env and add your key.');
     process.exit(1);
   }
