@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, MessageSquare, Copy, Check, Sparkles, ShieldCheck, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { getDemoNegotiationFallback } from '../utils/demoData';
 
 export default function NegotiationCopilotModal({
   isOpen,
@@ -25,21 +26,38 @@ export default function NegotiationCopilotModal({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/negotiate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          documentText,
-          clause,
-          role,
-          tone,
-          goal,
-          language,
-        }),
-      });
+      let data = null;
+      let ok = false;
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to generate negotiation proposal.');
+      try {
+        const res = await fetch('/api/negotiate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            documentText,
+            clause,
+            role,
+            tone,
+            goal,
+            language,
+          }),
+        });
+
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          data = await res.json();
+          if (data?.success && data?.data) {
+            ok = true;
+          }
+        }
+      } catch (fetchErr) {
+        console.warn('Negotiate API unavailable, using fallback:', fetchErr);
+      }
+
+      if (!ok || !data?.data) {
+        const fallback = getDemoNegotiationFallback(clause, language);
+        data = { data: fallback };
+      }
 
       setResult(data.data);
     } catch (err) {

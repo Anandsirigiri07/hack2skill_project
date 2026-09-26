@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Scale, FileText, Globe, Cpu, AlertTriangle } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { getDemoLegalContextFallback } from '../utils/demoData';
 
 export default function LegalContextModal({
   isOpen,
@@ -28,22 +29,39 @@ export default function LegalContextModal({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/verify-context', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          documentText,
-          clauseNumber: clause.clause_number,
-          clauseText: clause.clause_text,
-          jurisdiction,
-          language,
-        }),
-      });
+      let resultData = null;
+      let ok = false;
 
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Failed to verify legal context.');
+      try {
+        const res = await fetch('/api/verify-context', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            documentText,
+            clauseNumber: clause.clause_number,
+            clauseText: clause.clause_text,
+            jurisdiction,
+            language,
+          }),
+        });
 
-      setData(json.data);
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const json = await res.json();
+          if (json?.success && json?.data) {
+            resultData = json.data;
+            ok = true;
+          }
+        }
+      } catch (fetchErr) {
+        console.warn('Verify context API unavailable, using fallback:', fetchErr);
+      }
+
+      if (!ok || !resultData) {
+        resultData = getDemoLegalContextFallback(clause.clause_number, clause.clause_text, language);
+      }
+
+      setData(resultData);
     } catch (err) {
       setError(err.message);
     } finally {

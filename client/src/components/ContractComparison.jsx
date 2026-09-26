@@ -6,6 +6,7 @@ import {
 import { SAMPLE_AGREEMENT_A, SAMPLE_AGREEMENT_B } from '../utils/sampleDocuments';
 import LoadingSpinner from './LoadingSpinner';
 import { useLanguage } from '../context/LanguageContext';
+import { getDemoComparisonFallback } from '../utils/demoData';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
@@ -40,19 +41,34 @@ export default function ContractComparison() {
     setError(null);
 
     try {
-      const response = await fetch(`${API_BASE}/api/compare`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          textA: docAText.trim(),
-          textB: docBText.trim(),
-          language,
-        }),
-      });
+      let data = null;
+      let ok = false;
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to compare documents.');
+      try {
+        const response = await fetch(`${API_BASE}/api/compare`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            textA: docAText.trim(),
+            textB: docBText.trim(),
+            language,
+          }),
+        });
+
+        const contentType = response.headers.get('content-type') || '';
+        if (response.ok && contentType.includes('application/json')) {
+          data = await response.json();
+          if (data?.success && data?.data) {
+            ok = true;
+          }
+        }
+      } catch (fetchErr) {
+        console.warn('Compare API unavailable, using fallback:', fetchErr);
+      }
+
+      if (!ok || !data?.data) {
+        const fallback = getDemoComparisonFallback(docAText, docBText, language);
+        data = { data: fallback };
       }
 
       setComparison(data.data);

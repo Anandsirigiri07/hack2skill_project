@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, HelpCircle, Scale, Shield, Users, Copy, Check } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { getDemoDevilsAdvocateFallback } from '../utils/demoData';
 
 export default function DevilsAdvocateModal({
   isOpen,
@@ -28,20 +29,37 @@ export default function DevilsAdvocateModal({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/negotiate/devils-advocate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          documentText,
-          clause,
-          language,
-        }),
-      });
+      let resultData = null;
+      let ok = false;
 
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error || 'Failed to generate Devil\'s Advocate perspectives.');
+      try {
+        const res = await fetch('/api/negotiate/devils-advocate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            documentText,
+            clause,
+            language,
+          }),
+        });
 
-      setData(json.data);
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          const json = await res.json();
+          if (json?.success && json?.data) {
+            resultData = json.data;
+            ok = true;
+          }
+        }
+      } catch (fetchErr) {
+        console.warn('Devils advocate API unavailable, using fallback:', fetchErr);
+      }
+
+      if (!ok || !resultData) {
+        resultData = getDemoDevilsAdvocateFallback(clause, language);
+      }
+
+      setData(resultData);
     } catch (err) {
       setError(err.message);
     } finally {

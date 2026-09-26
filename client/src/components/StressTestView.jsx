@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Activity, Play, AlertTriangle, CheckCircle2, HelpCircle, DollarSign } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import LoadingSpinner from './LoadingSpinner';
+import { getDemoStressTestFallback } from '../utils/demoData';
 
 export default function StressTestView({ documentText, keyFacts = {}, language = 'en', onNavigateToAnalyze }) {
   const { t } = useLanguage();
@@ -57,19 +58,36 @@ export default function StressTestView({ documentText, keyFacts = {}, language =
     setError(null);
 
     try {
-      const res = await fetch('/api/stress-test', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          documentText,
-          scenario: activeScenarioQuery,
-          language,
-          keyFacts,
-        }),
-      });
+      let data = null;
+      let ok = false;
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to execute stress test simulation.');
+      try {
+        const res = await fetch('/api/stress-test', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            documentText,
+            scenario: activeScenarioQuery,
+            language,
+            keyFacts,
+          }),
+        });
+
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
+          data = await res.json();
+          if (data?.success && data?.data) {
+            ok = true;
+          }
+        }
+      } catch (fetchErr) {
+        console.warn('Stress test API unavailable, using fallback:', fetchErr);
+      }
+
+      if (!ok || !data?.data) {
+        const fallback = getDemoStressTestFallback(activeScenarioQuery, language);
+        data = { data: fallback };
+      }
 
       setSimulation(data.data);
     } catch (err) {
